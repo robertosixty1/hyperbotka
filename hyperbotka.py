@@ -20,6 +20,7 @@ class Command():
         self.message = message
 
 commands = [
+    Command("addcmd"      , "Added command:\n    >>> %@"),
     Command("ping"        , "Pong!"),
     Command("help"        , "Available commands:\n    %help"),
     Command("cpp"         , "**Rust**"),
