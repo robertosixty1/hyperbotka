@@ -4,6 +4,11 @@ import discord
 from dotenv import load_dotenv
 from os import getenv
 
+load_dotenv()
+TOKEN = getenv("DISCORD_TOKEN")
+ADM = getenv("GUILD_ADM")
+ABOUT = getenv("GUILD_ABOUT_CHANNEL")
+
 def list_to_string(l):
     string = ""
     for i in l:
@@ -30,7 +35,7 @@ commands = [
     Command("riir"        , "Have you considered rewriting %1 in rust?"),
     Command("whoami"      , "Of course you are %sender"),
     Command("killme"      , "%sender was killed"),
-    Command("about"       , "<#949043219033903165>"),
+    Command("about"       , f"%about"),
     Command("crunchyroll" , "%sender Are you serious? I just can't understand how can somebody pay for that shit, it is an buggy website (BUGGY) that requires you to pay to watch anime, it is just like... are you joking? That's unbealiveable, or even more specifically, that's unbearable."),
     Command("amogus"      , "%sender STOP POSTING ABOUT AMONG US! I'M TIRED OF SEEING IT! MY FRIENDS ON TIKTOK SEND ME MEMES, ON DISCORD IT'S FUCKING MEMES! I was in a server, right? and ALL OF THE CHANNELS were just among us stuff. I-I showed my champion underwear to my girlfriend and t-the logo I flipped it and I said \"hey babe, when the underwear is sus HAHA DING DING DING DING DING DING DING DI DI DING\" I fucking looked at a trashcan and said \"THAT'S A BIT SUSSY\" I looked at my penis I think of an astronauts helmet and I go \"PENIS? MORE LIKE PENSUS\" AAAAAAAAAAAAAAHGESFG"),
     Command("hentai"      , "%sender It wasn't THAT extreme, I was only drawing ass, but I covered up the drawing in time. The problem was that I had a ahem reference photos... on my phone... and my teacher totally saw.... WHAT DO I DO THIS IS SO EMBARRASSING 😭😭😭"),
@@ -81,6 +86,10 @@ def format_message(message, args, context) -> str:
                         elif f == "@":
                             for a in args[1:]:
                                 ret += a + "  "
+                        elif f == "adm":
+                            ret += f"<@{ADM}>"
+                        elif f == "about":
+                            ret += f"<#{ABOUT}>"
                         final_message += ret
                         final_message += " "
             else:
@@ -91,9 +100,6 @@ def format_message(message, args, context) -> str:
     return final_message
 
 ### END COMMANDS ###
-
-load_dotenv()
-TOKEN = getenv("DISCORD_TOKEN")
 
 client = discord.Client()
 
@@ -109,17 +115,23 @@ async def on_message(context):
     if context.content.startswith("!"):
         args = context.content.split()
         command = args[0][1:]
+        send = True
 
         for c in commands:
             if c.command == command:
                 if command == "addcmd":
-                    if len(args) >= 3:
-                        m = list_to_string(args[2:])
-                        cmd = args[1]
-                        commands.append(Command(cmd, m))
-                try:
-                    await context.channel.send(format_message(c.message, args, context))
-                except discord.errors.HTTPException:
-                    await context.channel.send("ERROR: Uh oh! That was a bad request, please try again ok! (Maybe arguments are missing?)")
+                    if context.author.id == int(ADM):
+                        if len(args) >= 3:
+                            m = list_to_string(args[2:])
+                            cmd = args[1]
+                            commands.append(Command(cmd, m))
+                    else:
+                        await context.channel.send(format_message("Only %adm XD", args, context))
+                        send = False
+                if send:
+                    try:
+                        await context.channel.send(format_message(c.message, args, context))
+                    except discord.errors.HTTPException:
+                        await context.channel.send("ERROR: Uh oh! That was a bad request, please try again ok! (Maybe arguments are missing?)")
 
 client.run(TOKEN)
