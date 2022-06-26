@@ -26,6 +26,7 @@ class Command():
 
 commands = [
     Command("addcmd"      , "Added command:\n    >>> %@"),
+    Command("delcmd"      , "Command %1 was deleted"),
     Command("ping"        , "Pong!"),
     Command("help"        , "Available commands:\n    %help"),
     Command("cpp"         , "**Rust**"),
@@ -119,6 +120,7 @@ async def on_message(context):
 
         for c in commands:
             if c.command == command:
+
                 if command == "addcmd":
                     if context.author.id == int(ADM):
                         if len(args) >= 3:
@@ -128,6 +130,19 @@ async def on_message(context):
                     else:
                         await context.channel.send(format_message("Only %adm XD", args, context))
                         send = False
+
+                elif command == "delcmd":
+                    if context.author.id == int(ADM):
+                        if len(args) >= 2:
+                            cmd = args[1]
+                            for k, v in enumerate(commands):
+                                if v.command == cmd:
+                                    commands.pop(k)
+                                    break
+                    else:
+                        await context.channel.send(format_message("Only %adm XD", args, context))
+                        send = False
+
                 if send:
                     try:
                         await context.channel.send(format_message(c.message, args, context))
